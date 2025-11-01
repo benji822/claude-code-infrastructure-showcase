@@ -1,0 +1,340 @@
+#!/usr/bin/env bash
+
+TOPIC="$1"
+
+if [ -z "$TOPIC" ]; then
+  cat << 'EOF'
+# Knowledge Capture Command
+
+**Usage:** `capture-knowledge <topic>`
+
+**Examples:**
+- `capture-knowledge "authentication-implementation"`
+- `capture-knowledge "mui-v7-migration"`
+- `capture-knowledge "prisma-transaction-patterns"`
+- `capture-knowledge "react-query-optimization"`
+
+This command helps you document solutions for team knowledge sharing.
+EOF
+  exit 0
+fi
+
+# Convert topic to filename-safe format
+FILENAME=$(echo "$TOPIC" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
+
+cat << EOF
+# Knowledge Capture: $TOPIC
+
+I'll document this solution for the team.
+
+---
+
+## What I'll Create
+
+A comprehensive knowledge document that captures:
+
+### 1. Problem Statement
+- What issue were we solving?
+- Why was it challenging?
+- What made this worth documenting?
+- Who else might face this?
+
+### 2. Context
+- When did this come up?
+- What triggered the need?
+- What constraints did we have?
+- What alternatives did we consider?
+
+### 3. Solution Overview
+- High-level approach
+- Key decisions made
+- Trade-offs accepted
+- Why this approach over alternatives
+
+### 4. Implementation Details
+- Code changes made
+- Files created/modified
+- Configuration updates
+- Dependencies added/updated
+- Database migrations (if any)
+
+### 5. Code Examples
+- Key code snippets with explanations
+- Before/after comparisons
+- Usage examples
+- Common patterns
+
+### 6. Testing Strategy
+- How to verify it works
+- Test cases added
+- Edge cases covered
+- Performance impact
+- How to test manually
+
+### 7. Team Guidance
+- When to use this pattern
+- When NOT to use it
+- Common pitfalls to avoid
+- Best practices
+- Related patterns
+
+### 8. References
+- External documentation
+- Framework docs (Librarian findings)
+- Related issues/PRs
+- Thread link (this conversation)
+- Related knowledge docs
+
+---
+
+## Where I'll Save It
+
+**Primary Document:**
+\`docs/knowledge/$FILENAME.md\`
+
+**AGENTS.md Update:**
+I'll suggest adding a reference in AGENTS.md so this knowledge is automatically included when relevant:
+
+\`\`\`markdown
+## [Relevant Section in AGENTS.md]
+
+For $TOPIC patterns, see @docs/knowledge/$FILENAME.md
+\`\`\`
+
+**Granular Guidance (if applicable):**
+If this applies to specific file types, I'll suggest creating:
+\`docs/development/$FILENAME.md\` with YAML frontmatter globs
+
+---
+
+## Document Structure
+
+I'll create a well-structured document:
+
+\`\`\`markdown
+# $TOPIC
+
+**Created:** $(date +%Y-%m-%d)
+**Thread:** [Link to this conversation]
+**Contributors:** [Your name]
+
+---
+
+## Problem
+
+[Detailed problem description]
+
+### Why This Was Challenging
+
+[Explanation of complexity]
+
+### Context
+
+[When, why, constraints]
+
+---
+
+## Solution
+
+### Approach
+
+[High-level solution]
+
+### Key Decisions
+
+1. **Decision:** [What we decided]
+   - **Rationale:** [Why]
+   - **Trade-offs:** [What we gave up]
+   - **Alternatives:** [What we didn't choose and why]
+
+[More decisions...]
+
+---
+
+## Implementation
+
+### Files Changed
+
+- \`path/to/file1.ts\` - [What changed]
+- \`path/to/file2.ts\` - [What changed]
+
+### Code Examples
+
+#### Example 1: [Description]
+
+\\\`\\\`\\\`typescript
+// Before
+[old code]
+
+// After
+[new code]
+
+// Why: [explanation]
+\\\`\\\`\\\`
+
+[More examples...]
+
+### Configuration
+
+[Config changes if any]
+
+### Dependencies
+
+[Dependencies added/updated]
+
+---
+
+## Testing
+
+### Test Cases
+
+1. **Test:** [Description]
+   - **Input:** [What to test with]
+   - **Expected:** [Expected result]
+   - **Actual:** [Actual result]
+
+[More test cases...]
+
+### How to Verify
+
+\\\`\\\`\\\`bash
+# Steps to verify this works
+npm test
+# or specific test command
+\\\`\\\`\\\`
+
+---
+
+## Team Guidance
+
+### When to Use This Pattern
+
+✅ Use when:
+- [Scenario 1]
+- [Scenario 2]
+
+### When NOT to Use
+
+❌ Don't use when:
+- [Scenario 1]
+- [Scenario 2]
+
+### Common Pitfalls
+
+1. **Pitfall:** [What to avoid]
+   - **Why:** [Why it's a problem]
+   - **Instead:** [What to do instead]
+
+[More pitfalls...]
+
+### Best Practices
+
+- [Practice 1]
+- [Practice 2]
+
+---
+
+## Related Patterns
+
+- @docs/knowledge/[related-pattern-1].md
+- @docs/knowledge/[related-pattern-2].md
+
+---
+
+## References
+
+- [Framework documentation]
+- [External resources]
+- [Thread link]
+- [Related PRs/issues]
+
+---
+
+## Lessons Learned
+
+- [Lesson 1]
+- [Lesson 2]
+
+---
+
+## Future Improvements
+
+- [Potential improvement 1]
+- [Potential improvement 2]
+\`\`\`
+
+---
+
+## Thread Sharing Checklist
+
+After creating the document, I'll remind you to:
+
+- [ ] Review the generated documentation
+- [ ] Set thread visibility to "Workspace-shared"
+- [ ] Add thread link to the knowledge doc
+- [ ] Update AGENTS.md with reference to this doc
+- [ ] Share in team chat with summary:
+  ```
+  📚 New Knowledge Doc: $TOPIC
+  
+  Problem: [One-line summary]
+  Solution: [One-line summary]
+  
+  📄 Documentation: docs/knowledge/$FILENAME.md
+  💬 Thread: [link]
+  
+  This is now part of our AGENTS.md guidance!
+  ```
+- [ ] Consider if this should become:
+  - A toolbox (for validation)
+  - A custom command (for workflow)
+  - Granular guidance (for auto-activation)
+
+---
+
+## AGENTS.md Integration
+
+I'll suggest adding to AGENTS.md:
+
+**If general pattern:**
+\`\`\`markdown
+## Common Patterns
+
+### $TOPIC
+See @docs/knowledge/$FILENAME.md for detailed guidance.
+\`\`\`
+
+**If specific to file types:**
+Create \`docs/development/$FILENAME.md\` with:
+\`\`\`yaml
+---
+globs:
+  - '[pattern matching relevant files]'
+---
+
+# $TOPIC
+
+See @docs/knowledge/$FILENAME.md for full details.
+
+[Quick reference here]
+\`\`\`
+
+---
+
+## Proceeding with Knowledge Capture
+
+I'll now:
+1. Review our conversation for key points
+2. Extract problem, solution, and implementation details
+3. Create comprehensive documentation
+4. Suggest AGENTS.md updates
+5. Provide thread sharing checklist
+6. Recommend next steps (toolbox, command, etc.)
+
+**Creating knowledge document for: $TOPIC**
+
+**File:** \`docs/knowledge/$FILENAME.md\`
+
+Let me gather all the relevant information from our conversation...
+EOF
+

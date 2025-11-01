@@ -1,0 +1,344 @@
+#!/usr/bin/env bash
+
+cat << 'EOF'
+# Advanced Debugging Workflow
+
+This command combines Oracle's reasoning with Librarian's research capabilities for complex debugging.
+
+---
+
+## Step 1: Initial Analysis (Main Agent)
+
+First, I'll gather all relevant information:
+
+### Error Information
+- Error messages and stack traces
+- Console output
+- Log files
+- Error codes
+
+### Affected Files
+- Files mentioned in stack trace
+- Recently modified files
+- Related components
+
+### Context
+- Recent changes (git log, git diff)
+- When did this start happening?
+- What changed between working and broken state?
+
+### Reproduction
+- Steps to reproduce
+- Frequency (always, intermittent, specific conditions)
+- Environment (dev, staging, production)
+
+### What You've Tried
+- Attempted fixes
+- Debugging steps taken
+- Hypotheses tested
+
+---
+
+## Step 2: Root Cause Analysis (Oracle)
+
+I'll use Oracle to analyze the bug with all gathered context:
+
+**Oracle Prompt:**
+```
+Use Oracle to analyze this bug:
+
+**Error:**
+[Full error message and stack trace]
+
+**Affected Files:**
+[List of files with relevant code sections]
+
+**Context:**
+- Recent changes: [git diff or description]
+- When it started: [timeline]
+- Reproduction: [steps]
+- Environment: [details]
+
+**What We've Tried:**
+[List of attempted fixes and results]
+
+**Oracle's Task:**
+1. Identify the root cause
+2. Explain WHY this is happening (not just what)
+3. Determine if this is:
+   - Our code issue
+   - Framework/library issue
+   - Configuration issue
+   - Environment issue
+   - Data issue
+4. Suggest potential fixes with pros/cons
+5. Identify if we need external research (Librarian)
+
+Provide specific file names, line numbers, and code examples.
+```
+
+---
+
+## Step 3: External Research (Librarian - if needed)
+
+If Oracle suspects a framework/library issue, I'll use Librarian:
+
+**Scenario A: Framework Bug**
+```
+Ask Librarian to research this in the [framework] repository:
+
+Error: [error message]
+Framework: [name and version]
+
+Find:
+1. Similar issues in the issue tracker
+2. The source code causing this error
+3. Known bugs or fixes
+4. Workarounds or patches
+5. Version where this was fixed (if applicable)
+
+Search both open and closed issues from the last 2 years.
+```
+
+**Scenario B: API Usage Issue**
+```
+Use Librarian to find correct usage of [API/feature]:
+
+What we're trying to do: [description]
+Current approach: [our code]
+Error: [error message]
+
+Find:
+1. Official documentation
+2. Correct usage examples
+3. Common mistakes
+4. Best practices
+5. Migration guides (if API changed)
+```
+
+**Scenario C: Cross-Repository Research**
+```
+Ask Librarian to search our organization's repositories:
+
+Find how we've solved similar problems:
+- Similar error messages
+- Similar use cases
+- Working implementations
+- Lessons learned
+
+This helps us maintain consistency and learn from past solutions.
+```
+
+---
+
+## Step 4: Solution Design (Oracle + Librarian Findings)
+
+Based on Oracle's analysis and Librarian's research, I'll design a fix:
+
+**Oracle Prompt:**
+```
+Based on Librarian's findings, use Oracle to design a fix:
+
+**Librarian's Findings:**
+[Summary of what Librarian found]
+
+**Design Requirements:**
+1. Fix the root cause (not just symptoms)
+2. Handle edge cases
+3. Maintain backwards compatibility (if needed)
+4. Consider performance implications
+5. Ensure testability
+
+**Oracle's Task:**
+Provide:
+1. Detailed fix strategy
+2. Code changes needed (with examples)
+3. Configuration changes (if any)
+4. Migration steps (if needed)
+5. Testing strategy
+6. Potential side effects
+7. Rollback plan
+
+Be specific with file names, line numbers, and complete code examples.
+```
+
+---
+
+## Step 5: Implementation
+
+I'll implement the fix based on Oracle's design:
+
+### Code Changes
+- Make the necessary changes
+- Follow our coding standards
+- Add inline comments explaining the fix
+
+### Configuration Updates
+- Update config files if needed
+- Document configuration changes
+
+### Dependency Updates
+- Update dependencies if needed
+- Document version changes
+- Check for breaking changes
+
+---
+
+## Step 6: Testing & Verification
+
+I'll create comprehensive tests:
+
+### Reproduce the Bug
+- Create a test that reproduces the original bug
+- Verify it fails before the fix
+
+### Verify the Fix
+- Run the test with the fix
+- Verify it passes
+
+### Edge Cases
+- Test edge cases Oracle identified
+- Add tests for potential regressions
+
+### Integration Tests
+- Verify the fix doesn't break other functionality
+- Run full test suite
+
+### Manual Testing
+- Test in development environment
+- Verify in conditions similar to where bug occurred
+
+---
+
+## Step 7: Oracle Review
+
+After implementation, I'll ask Oracle to review:
+
+**Oracle Prompt:**
+```
+Use Oracle to review this bug fix:
+
+**Original Bug:**
+[Description]
+
+**Root Cause:**
+[What Oracle identified]
+
+**Fix Implemented:**
+[Code changes made]
+
+**Tests Added:**
+[Test coverage]
+
+**Oracle's Review Task:**
+1. Verify the fix addresses the root cause
+2. Check for edge cases we might have missed
+3. Identify potential side effects
+4. Review test coverage
+5. Suggest improvements
+
+Be critical and thorough.
+```
+
+---
+
+## Step 8: Documentation
+
+I'll create comprehensive documentation:
+
+### Bug Report Document
+**File:** `docs/bugs/bug-[date]-[short-description].md`
+
+**Contents:**
+- Problem description
+- Root cause analysis
+- Solution approach
+- Code changes
+- Testing strategy
+- Lessons learned
+
+### Knowledge Base Update
+If this reveals a pattern:
+- Update AGENTS.md with guidance
+- Add to docs/development/ if applicable
+- Create toolbox to catch similar issues
+
+### Code Comments
+- Add comments explaining why the fix was needed
+- Document any non-obvious logic
+- Reference the bug report doc
+
+---
+
+## Step 9: Team Knowledge Sharing
+
+I'll help you share this with the team:
+
+### Thread Sharing
+1. Set thread visibility to "Workspace-shared"
+2. Add thread link to bug report doc
+3. Share in team chat with summary:
+   - "Fixed: [bug description]"
+   - "Root cause: [summary]"
+   - "Solution: [summary]"
+   - "Documentation: docs/bugs/bug-[date].md"
+   - "Thread: [link]"
+
+### Prevent Recurrence
+- Update AGENTS.md if pattern emerges
+- Create validation toolbox if applicable
+- Add to code review checklist
+
+---
+
+## Step 10: Post-Mortem (for critical bugs)
+
+For critical bugs, I'll help create a post-mortem:
+
+### What Happened
+- Timeline of events
+- Impact assessment
+- Detection method
+
+### Root Cause
+- Technical root cause
+- Process root cause (how did this get through?)
+
+### Resolution
+- How it was fixed
+- Time to resolution
+
+### Lessons Learned
+- What went well
+- What could be improved
+- Action items
+
+### Prevention
+- Code changes to prevent recurrence
+- Process changes
+- Monitoring improvements
+- Testing improvements
+
+---
+
+## Ready to Debug?
+
+I'll now:
+1. Gather all error information and context
+2. Use Oracle for root cause analysis
+3. Use Librarian for external research (if needed)
+4. Design a comprehensive fix with Oracle
+5. Implement and test thoroughly
+6. Get Oracle's review of the fix
+7. Document everything
+8. Help you share knowledge with the team
+
+**Let's start debugging. Please provide:**
+- Error message/stack trace
+- Steps to reproduce
+- When this started happening
+- What you've already tried
+
+**Proceeding with advanced debugging workflow...**
+EOF
+

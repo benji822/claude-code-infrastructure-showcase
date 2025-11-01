@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+
+cat << 'EOF'
+# Architecture Review Workflow
+
+I'll conduct a comprehensive architecture review using Oracle (GPT-5).
+
+---
+
+## Phase 1: Gather Context
+
+First, I'll identify the key architectural components:
+
+**I'll examine:**
+- Main entry points (server.ts, app.ts, index.ts)
+- Core business logic (services, controllers)
+- Data models (entities, schemas)
+- External dependencies (package.json, imports)
+- Configuration files
+
+**I'll create a map of:**
+- Component relationships
+- Data flow
+- Dependency graph
+- External integrations
+
+---
+
+## Phase 2: Oracle Analysis
+
+Then I'll use Oracle to conduct a deep analysis:
+
+**Prompt for Oracle:**
+```
+Use Oracle to review this codebase architecture. Analyze the following files:
+
+[I'll list all relevant files here]
+
+Focus on:
+
+1. **Layering & Separation of Concerns**
+   - Are responsibilities properly separated?
+   - Is business logic isolated from infrastructure?
+   - Are there circular dependencies?
+
+2. **Dependency Management**
+   - Are dependencies well-managed?
+   - Are there unnecessary dependencies?
+   - Is dependency injection used appropriately?
+
+3. **Scalability**
+   - Can this scale horizontally?
+   - Are there bottlenecks?
+   - Is caching used effectively?
+
+4. **Security**
+   - Are there security vulnerabilities?
+   - Is input validation comprehensive?
+   - Are secrets properly managed?
+   - Is authentication/authorization robust?
+
+5. **Maintainability**
+   - Is the code maintainable?
+   - Is there excessive complexity?
+   - Are patterns consistent?
+   - Is the code well-documented?
+
+6. **Performance**
+   - Are there performance issues?
+   - Are database queries optimized?
+   - Is there unnecessary computation?
+
+7. **Testing**
+   - Is the architecture testable?
+   - Are there untestable components?
+   - Is test coverage adequate?
+
+For each issue found, provide:
+- Severity (Critical, High, Medium, Low)
+- File name and line number
+- Specific problem description
+- Concrete improvement suggestion
+- Code example of the fix
+```
+
+---
+
+## Phase 3: Detailed Analysis
+
+For each issue Oracle identifies, I'll:
+
+1. **Show the problematic code**
+   - Extract the relevant section
+   - Highlight the specific issue
+
+2. **Explain why it's an issue**
+   - Impact on maintainability
+   - Impact on scalability
+   - Impact on security
+   - Impact on performance
+
+3. **Provide a refactored example**
+   - Show the improved code
+   - Explain the benefits
+   - Note any trade-offs
+
+4. **Estimate effort to fix**
+   - Time estimate
+   - Complexity level
+   - Dependencies on other changes
+
+---
+
+## Phase 4: Prioritized Recommendations
+
+Finally, I'll create a prioritized action plan:
+
+### Critical (Fix Immediately)
+- Security vulnerabilities
+- Data corruption risks
+- System stability issues
+
+### High (Fix This Sprint)
+- Significant performance problems
+- Major maintainability issues
+- Scalability blockers
+
+### Medium (Fix This Quarter)
+- Code quality improvements
+- Minor performance optimizations
+- Refactoring opportunities
+
+### Low (Technical Debt)
+- Style inconsistencies
+- Documentation gaps
+- Nice-to-have improvements
+
+---
+
+## Phase 5: Knowledge Capture
+
+After the review, I'll:
+
+1. **Create a summary document**
+   - Save to docs/architecture-review-[date].md
+   - Include all findings
+   - Include action plan
+
+2. **Update AGENTS.md**
+   - Add any new patterns discovered
+   - Document decisions made
+   - Add guidance for future work
+
+3. **Suggest thread sharing**
+   - Remind you to set thread to "Workspace-shared"
+   - Add thread link to the review document
+   - Share with team for discussion
+
+---
+
+## Ready to Proceed?
+
+I'll now:
+1. Gather all architectural files
+2. Invoke Oracle for deep analysis
+3. Present findings with specific examples
+4. Create prioritized action plan
+5. Document for team knowledge
+
+**Proceeding with architecture review...**
+EOF
+

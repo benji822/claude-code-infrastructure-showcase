@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const action = process.env.TOOLBOX_ACTION;
+
+if (action === 'describe') {
+  console.log([
+    'name: run-tests-smart',
+    'description: Intelligent test runner that finds and runs relevant tests',
+    'files: string comma-separated list of changed files (optional)',
+    'pattern: string test pattern to match (optional)',
+    'watch: boolean run in watch mode (default: false)'
+  ].join('\n'));
+  process.exit(0);
+}
+
+if (action === 'execute') {
+  // Read parameters from stdin
+  const input = fs.readFileSync(0, 'utf-8');
+  const filesMatch = input.match(/files:\s*(.+)/);
+  const patternMatch = input.match(/pattern:\s*(.+)/);
+  const watchMatch = input.match(/watch:\s*(true|false)/);
+  
+  const files = filesMatch ? filesMatch[1].trim().split(',').map(f => f.trim()) : [];
+  const pattern = patternMatch ? patternMatch[1].trim() : null;
+  const watch = watchMatch ? watchMatch[1] === 'true' : false;
+  
+  console.log('\n🧪 Smart Test Runner\n');
+  
+  // Determine what tests to run
+  let testPattern = pattern;
+  
+  if (!testPattern && files.length > 0) {
+    console.log('📁 Analyzing changed files...\n');
+    
+    // Find related test files
+    const testFiles = [];
+    
+    files.forEach(file => {
+      console.log(`   ${file}`);
+      
+      // Direct test file
+      if (file.includes('.test.') || file.includes('.spec.')) {
+        testFiles.push(file);
+      } else {
+        // Find corresponding test file
+        const baseName = file.replace(/\.(ts|tsx|js|jsx)$/, '');
+        const possibleTests = [
+          `${baseName}.test.ts`,
+          `${baseName}.test.tsx`,
+          `${baseName}.spec.ts`,
+          `${baseName}.spec.tsx`,
+          `${baseName}/__tests__/${path.basename(baseName)}.test.ts`,
+        ];
+        
+        possibleTests.forEach(testFile => {
+          if (fs.existsSync(testFile)) {
+            testFiles.push(testFile);
+          }
+        });
+      }
+    });
+    
+    if (testFiles.length > 0) {
+      console.log(`\n✅ Found ${testFiles.length} related test file(s):\n`);
+      testFiles.forEach(f => console.log(`   ${f}`));
+      testPattern = testFiles.join('|');
+    } else {
+      console.log('\n⚠️  No direct test files found for changed files.');
+      console.log('   Running full test suite...\n');
+    }
+  }
+  
+  // Build test command
+  let testCommand = 'npm test';
+  
+  if (testPattern) {
+    testCommand += ` -- --testPathPattern="${testPattern}"`;
+  }
+  
+  if (watch) {
+    testCommand += ' --watch';
+  }
+  
+  console.log(`\n🚀 Running: ${testCommand}\n`);
+  console.log('─────────────────────────────────────────────────────────────────\n');
+  
+  try {
+    execSync(testCommand, { stdio: 'inherit' });
+    
+    console.log('\n─────────────────────────────────────────────────────────────────');
+    console.log('✅ All tests passed!\n');
+    
+    if (files.length > 0) {
+      console.log('💡 Tip: Use Oracle to review test coverage:');
+      console.log('   "Use Oracle to review test coverage for these changes.');
+      console.log('    Are there edge cases we should test?"\n');
+    }
+    
+    process.exit(0);
+  } catch (error) {
+    console.log('\n─────────────────────────────────────────────────────────────────');
+    console.log('❌ Tests failed!\n');
+    
+    console.log('💡 Debugging suggestions:\n');
+    console.log('1. Review the error messages above');
+    console.log('2. Run specific test file:');
+    console.log('   npm test -- path/to/test.test.ts\n');
+    console.log('3. Use Oracle for complex failures:');
+    console.log('   "Use Oracle to analyze this test failure:');
+    console.log('    [paste error message]"\n');
+    console.log('4. Use debug-with-research command for framework issues:');
+    console.log('   "Run debug-with-research command"\n');
+    
+    process.exit(1);
+  }
+}
+

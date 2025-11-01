@@ -45,7 +45,9 @@ temp/
 # Database
 *.sqlite
 *.db
+.chunkhound
 
 # Prisma
 .env
 prisma/.env
+

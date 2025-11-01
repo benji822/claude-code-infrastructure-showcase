@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+
+FRAMEWORK="$1"
+TOPIC="$2"
+
+if [ -z "$FRAMEWORK" ] || [ -z "$TOPIC" ]; then
+  cat << 'EOF'
+# Framework Research Command
+
+**Usage:** `research-framework <framework> <topic>`
+
+**Examples:**
+- `research-framework "MUI v7" "Grid component"`
+- `research-framework "Prisma" "transactions"`
+- `research-framework "React 18" "concurrent features"`
+- `research-framework "Next.js" "middleware"`
+
+This command uses Librarian to conduct comprehensive framework research.
+EOF
+  exit 0
+fi
+
+cat << EOF
+# Framework Research: $FRAMEWORK - $TOPIC
+
+I'll use Librarian to research this topic comprehensively.
+
+---
+
+## Phase 1: Official Documentation
+
+**Librarian Query:**
+\`\`\`
+Ask Librarian to search the official $FRAMEWORK repository for:
+
+Topic: $TOPIC
+
+Find:
+1. Official documentation
+2. API reference
+3. Code examples
+4. Usage patterns
+5. Best practices
+6. Common pitfalls
+7. Migration guides (if applicable)
+
+Focus on the most recent version and provide specific code examples.
+\`\`\`
+
+---
+
+## Phase 2: Real-World Usage
+
+**Librarian Query:**
+\`\`\`
+Use Librarian to find how popular projects use $FRAMEWORK for $TOPIC:
+
+Search criteria:
+- Top 10 starred repositories using $FRAMEWORK
+- Find implementations of $TOPIC
+- Identify common patterns
+- Note different approaches
+- Highlight best practices
+
+Show specific code examples from real projects.
+\`\`\`
+
+---
+
+## Phase 3: Recent Changes & Issues
+
+**Librarian Query:**
+\`\`\`
+Ask Librarian to check for recent changes related to $TOPIC in $FRAMEWORK:
+
+Find:
+1. Breaking changes in latest versions
+2. New features or improvements
+3. Deprecated patterns
+4. Migration guides
+5. Known issues or bugs
+6. Recommended workarounds
+
+Focus on changes from the last 12 months.
+\`\`\`
+
+---
+
+## Phase 4: Cross-Repository Patterns
+
+**Librarian Query:**
+\`\`\`
+Use Librarian to search our organization's repositories for $TOPIC:
+
+Find:
+- How we've implemented $TOPIC in other projects
+- Internal patterns and conventions
+- Lessons learned
+- Reusable code
+
+This helps maintain consistency across our projects.
+\`\`\`
+
+---
+
+## Phase 5: Synthesis & Recommendations
+
+After Librarian completes the research, I'll synthesize the findings into:
+
+### 1. Recommended Approach
+- Best practice for our project
+- Why this approach over alternatives
+- Trade-offs and considerations
+
+### 2. Code Examples
+- Adapted to our tech stack
+- Following our conventions
+- With inline comments explaining key points
+
+### 3. Implementation Plan
+- Step-by-step guide
+- Files to create/modify
+- Dependencies to add
+- Configuration changes
+
+### 4. Migration Strategy (if applicable)
+- Current state analysis
+- Migration steps
+- Testing strategy
+- Rollback plan
+
+### 5. Potential Issues
+- Known problems to watch for
+- Edge cases to handle
+- Performance considerations
+- Security implications
+
+### 6. Testing Approach
+- Unit test examples
+- Integration test strategy
+- How to verify correctness
+
+---
+
+## Phase 6: Knowledge Capture
+
+I'll create a comprehensive document:
+
+**File:** \`docs/knowledge/$FRAMEWORK-$TOPIC.md\`
+
+**Contents:**
+- Research summary
+- Recommended approach
+- Code examples
+- Implementation guide
+- Common pitfalls
+- Testing strategy
+- References to Librarian findings
+
+**AGENTS.md Update:**
+I'll suggest adding a reference to this knowledge doc in AGENTS.md so future work automatically includes this guidance.
+
+---
+
+## Phase 7: Thread Sharing
+
+I'll remind you to:
+1. Set thread visibility to "Workspace-shared"
+2. Add thread link to the knowledge doc
+3. Share in team chat with summary:
+   - "Researched $FRAMEWORK $TOPIC using Librarian"
+   - "Key findings: [summary]"
+   - "Documentation: docs/knowledge/$FRAMEWORK-$TOPIC.md"
+   - "Thread: [link]"
+
+---
+
+## Proceeding with Research
+
+I'll now:
+1. Use Librarian to search official $FRAMEWORK repository
+2. Find real-world usage examples
+3. Check for recent changes and issues
+4. Search our organization's repos
+5. Synthesize findings into actionable recommendations
+6. Create comprehensive documentation
+7. Suggest AGENTS.md updates
+
+**Starting Librarian research for $FRAMEWORK - $TOPIC...**
+EOF
+

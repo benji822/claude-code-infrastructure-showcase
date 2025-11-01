@@ -1,0 +1,245 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+const action = process.env.TOOLBOX_ACTION;
+
+if (action === 'describe') {
+  console.log([
+    'name: validate-architecture',
+    'description: Validates layered architecture and provides actionable feedback',
+    'dir: string workspace directory to validate'
+  ].join('\n'));
+  process.exit(0);
+}
+
+if (action === 'execute') {
+  // Read parameters from stdin
+  const input = fs.readFileSync(0, 'utf-8');
+  const dirMatch = input.match(/dir:\s*(.+)/);
+  const dir = dirMatch ? dirMatch[1].trim() : '.';
+  
+  const issues = [];
+  
+  // Helper to check if file exists
+  const fileExists = (filePath) => {
+    try {
+      return fs.existsSync(path.join(dir, filePath));
+    } catch {
+      return false;
+    }
+  };
+  
+  // Helper to read file content
+  const readFile = (filePath) => {
+    try {
+      return fs.readFileSync(path.join(dir, filePath), 'utf-8');
+    } catch {
+      return '';
+    }
+  };
+  
+  // Helper to find files recursively
+  const findFiles = (directory, pattern) => {
+    const results = [];
+    try {
+      const files = fs.readdirSync(path.join(dir, directory), { withFileTypes: true });
+      for (const file of files) {
+        const filePath = path.join(directory, file.name);
+        if (file.isDirectory() && !file.name.startsWith('.') && file.name !== 'node_modules') {
+          results.push(...findFiles(filePath, pattern));
+        } else if (file.isFile() && pattern.test(file.name)) {
+          results.push(filePath);
+        }
+      }
+    } catch {
+      // Directory doesn't exist
+    }
+    return results;
+  };
+  
+  // Check 1: Business logic in routes
+  const routeFiles = findFiles('backend/routes', /\.ts$/);
+  routeFiles.forEach(file => {
+    const content = readFile(file);
+    
+    // Check for direct database access
+    if (content.includes('prisma.') && !content.includes('controller.')) {
+      issues.push({
+        severity: 'high',
+        file: file,
+        line: content.split('\n').findIndex(line => line.includes('prisma.')) + 1,
+        issue: 'Direct database access in route file',
+        suggestion: 'Move database logic to service layer',
+        example: `// In services/PostService.ts
+export class PostService {
+  async create(data: CreatePostDto) {
+    return this.repo.create(data);
+  }
+}
+
+// In routes/posts.ts
+router.post('/', async (req, res) => {
+  const post = await postService.create(req.body);
+  res.json(post);
+});`
+      });
+    }
+    
+    // Check for business logic in routes
+    if (content.match(/if\s*\(.*\)\s*{[\s\S]{50,}/)) {
+      issues.push({
+        severity: 'medium',
+        file: file,
+        line: content.split('\n').findIndex(line => line.match(/if\s*\(/)) + 1,
+        issue: 'Complex business logic in route file',
+        suggestion: 'Move business logic to controller or service layer',
+        example: `// In controllers/PostController.ts
+async create(req: Request, res: Response) {
+  // Business logic here
+  const result = await this.service.create(req.body);
+  res.json(result);
+}`
+      });
+    }
+  });
+  
+  // Check 2: Database access in controllers
+  const controllerFiles = findFiles('backend/controllers', /\.ts$/);
+  controllerFiles.forEach(file => {
+    const content = readFile(file);
+    
+    if (content.includes('prisma.') && !content.includes('service.')) {
+      issues.push({
+        severity: 'high',
+        file: file,
+        line: content.split('\n').findIndex(line => line.includes('prisma.')) + 1,
+        issue: 'Direct database access in controller',
+        suggestion: 'Controllers should call services, not access database directly',
+        example: `// In controllers/PostController.ts
+export class PostController {
+  constructor(private service: PostService) {}
+  
+  async create(req: Request, res: Response) {
+    const post = await this.service.create(req.body);
+    res.json(post);
+  }
+}`
+      });
+    }
+  });
+  
+  // Check 3: Missing error handling
+  const allTsFiles = findFiles('backend', /\.ts$/);
+  allTsFiles.forEach(file => {
+    const content = readFile(file);
+    
+    // Check for async functions without try-catch
+    const asyncFunctions = content.match(/async\s+\w+\s*\([^)]*\)\s*{/g) || [];
+    const tryCatchCount = (content.match(/try\s*{/g) || []).length;
+    
+    if (asyncFunctions.length > 0 && tryCatchCount === 0) {
+      issues.push({
+        severity: 'medium',
+        file: file,
+        line: content.split('\n').findIndex(line => line.includes('async')) + 1,
+        issue: 'Async function without error handling',
+        suggestion: 'Add try-catch blocks or use error handling middleware',
+        example: `// Option 1: Try-catch
+async function handler(req, res) {
+  try {
+    const result = await service.doSomething();
+    res.json(result);
+  } catch (error) {
+    next(error); // Pass to error middleware
+  }
+}
+
+// Option 2: Error middleware
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: err.message });
+});`
+      });
+    }
+  });
+  
+  // Check 4: Missing input validation
+  routeFiles.forEach(file => {
+    const content = readFile(file);
+    
+    // Check POST/PUT routes without validation
+    if ((content.includes('router.post') || content.includes('router.put')) && 
+        !content.includes('validate') && !content.includes('schema')) {
+      issues.push({
+        severity: 'high',
+        file: file,
+        line: content.split('\n').findIndex(line => 
+          line.includes('router.post') || line.includes('router.put')) + 1,
+        issue: 'POST/PUT route without input validation',
+        suggestion: 'Add validation middleware using Zod or similar',
+        example: `import { z } from 'zod';
+
+const createPostSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1)
+});
+
+router.post('/', validate(createPostSchema), controller.create);`
+      });
+    }
+  });
+  
+  // Output results
+  if (issues.length > 0) {
+    console.log('\n╔════════════════════════════════════════════════════════════════╗');
+    console.log('║         Architecture Validation Issues Found                  ║');
+    console.log('╚════════════════════════════════════════════════════════════════╝\n');
+    
+    // Group by severity
+    const critical = issues.filter(i => i.severity === 'critical');
+    const high = issues.filter(i => i.severity === 'high');
+    const medium = issues.filter(i => i.severity === 'medium');
+    const low = issues.filter(i => i.severity === 'low');
+    
+    const printIssues = (issueList, severity) => {
+      if (issueList.length === 0) return;
+      
+      const icon = severity === 'critical' ? '🔴' : 
+                   severity === 'high' ? '🟠' : 
+                   severity === 'medium' ? '🟡' : '🟢';
+      
+      console.log(`\n${icon} ${severity.toUpperCase()} (${issueList.length})\n`);
+      
+      issueList.forEach((issue, i) => {
+        console.log(`${i + 1}. ${issue.file}:${issue.line}`);
+        console.log(`   Issue: ${issue.issue}`);
+        console.log(`   💡 Suggestion: ${issue.suggestion}`);
+        console.log(`   📝 Example:`);
+        console.log(issue.example.split('\n').map(line => `      ${line}`).join('\n'));
+        console.log('');
+      });
+    };
+    
+    printIssues(critical, 'critical');
+    printIssues(high, 'high');
+    printIssues(medium, 'medium');
+    printIssues(low, 'low');
+    
+    console.log('─────────────────────────────────────────────────────────────────');
+    console.log(`Total issues: ${issues.length}`);
+    console.log('─────────────────────────────────────────────────────────────────\n');
+    
+    console.log('💡 Tip: Use Oracle to review these issues:');
+    console.log('   "Use Oracle to review these architecture issues and suggest');
+    console.log('    a refactoring plan with priority order."\n');
+    
+    process.exit(1);
+  } else {
+    console.log('\n✅ Architecture validation passed!');
+    console.log('   All files follow layered architecture principles.\n');
+    process.exit(0);
+  }
+}
+
